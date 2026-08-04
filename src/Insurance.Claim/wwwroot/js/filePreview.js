@@ -1,7 +1,7 @@
 /* File preview helpers — shared between documentUpload, flowWalker and
  * evidenceSection directives. Builds thumbnails (image blob URL / PDF
  * first-page render / null fallback) and provides an extension icon
- * class map. Plain JS port of src/DeGoudse.Web/src/utils/filePreview.ts. */
+ * class map. Plain JS port of (legacy)/utils/filePreview.ts. */
 (function (root) {
     'use strict';
 

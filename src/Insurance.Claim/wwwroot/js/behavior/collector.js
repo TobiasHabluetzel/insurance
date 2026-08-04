@@ -1,5 +1,5 @@
 /* Behavioral signal collector — plain JS port of
- * src/DeGoudse.Web/src/behavior/collector.ts. Attached to
+ * (legacy)/behavior/collector.ts. Attached to
  * window.__behavior.collector; the AngularJS behaviorSvc wraps it for
  * injection into controllers.
  *

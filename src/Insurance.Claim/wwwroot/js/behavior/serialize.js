@@ -1,5 +1,5 @@
 /* Serialization + attach helper — plain JS port of
- * src/DeGoudse.Web/src/behavior/serialize.ts. Uses fetch() so no jQuery /
+ * (legacy)/behavior/serialize.ts. Uses fetch() so no jQuery /
  * $http dependency; the collector must stay usable outside AngularJS if
  * we ever move it back to a framework-agnostic host. */
 (function (root) {

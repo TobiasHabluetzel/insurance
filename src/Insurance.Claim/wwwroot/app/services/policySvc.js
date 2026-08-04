@@ -1,7 +1,7 @@
-/* $http wrapper around the DeGoudse.Api claim-wizard endpoints — the
+/* $http wrapper around the Insurance.Api claim-wizard endpoints — the
  * client-side twin of Services/PolicyApiClient.cs. AngularJS controllers
  * inject this instead of writing raw $http calls, so all API shape / error
- * handling stays in one place. Mirrors src/DeGoudse.Web/src/api/claims.ts
+ * handling stays in one place. Mirrors (legacy)/api/claims.ts
  * from the React project — payload shapes are 1:1. */
 (function () {
     'use strict';

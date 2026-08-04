@@ -1,4 +1,4 @@
-/* CATEGORY_FLOWS — plain JS port of src/DeGoudse.Web/src/claimFlows.ts.
+/* CATEGORY_FLOWS — plain JS port of (legacy)/claimFlows.ts.
  * Consumed by the flow-walker directive (and by ClaimSubmittedPage for
  * the category label). Kept 1:1 with the React tree so both frontends
  * stay in step. */

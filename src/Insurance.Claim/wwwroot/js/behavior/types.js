@@ -1,5 +1,5 @@
 /* Behavior collector wire-format helpers — plain JS port of
- * src/DeGoudse.Web/src/behavior/types.ts. Kept as a global namespace
+ * (legacy)/behavior/types.ts. Kept as a global namespace
  * (window.__behavior) rather than an ES module so the file can be loaded
  * via a plain <script> tag alongside jQuery/AngularJS without a bundler.
  *

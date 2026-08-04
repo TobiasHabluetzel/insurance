@@ -1,5 +1,5 @@
 /* Handoff between the submit-stage and evidence-stage drains — plain JS
- * port of src/DeGoudse.Web/src/behavior/handoff.ts. Same localStorage key
+ * port of (legacy)/behavior/handoff.ts. Same localStorage key
  * ('beh_claim_registered') and same shape { claimId, at }. */
 (function (root) {
     'use strict';
