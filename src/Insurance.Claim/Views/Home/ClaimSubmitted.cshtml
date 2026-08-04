@@ -1,0 +1,224 @@
+@model string
+@{
+    ViewData["Title"] = "Claim submitted";
+    var claimId = Model;
+}
+
+@await Html.PartialAsync("_BrandHeader")
+
+<main ng-controller="ClaimSubmittedController" class="flex-1 flex flex-col bg-gray-50">
+
+    <div class="bg-brand-purple flex-1 flex flex-col px-6 pt-8 pb-10">
+        <div class="w-full max-w-lg mx-auto flex flex-col flex-1">
+
+            <p class="text-white text-base font-medium mb-8 leading-snug">
+                Thank you very much for the information.<br />
+                Your documents are now being processed…
+            </p>
+
+            @* Circular progress ring. Rotating spin only while pending. *@
+            <div class="flex justify-center mb-10">
+                <div class="relative w-40 h-40">
+                    <svg class="w-full h-full -rotate-90" viewBox="0 0 88 88">
+                        <circle cx="44" cy="44" r="40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="3" />
+                        <circle cx="44" cy="44" r="40" fill="none" stroke="var(--brand-accent)" stroke-width="3" stroke-linecap="round"
+                                stroke-dasharray="251"
+                                ng-attr-stroke-dashoffset="{{ progressState().offset }}"
+                                ng-class="{ 'animate-spin-slow origin-center': progressState().spin }"
+                                style="transition: stroke-dashoffset 0.6s ease" />
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-white font-bold text-base text-center leading-tight whitespace-pre-line">{{ allDone() ? 'Complete!' : 'Processing\nin progress…' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            @* Steps *@
+            <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors duration-500"
+                         ng-class="step1 === 'done' ? 'border-white' : 'border-white/30'">
+                        <svg ng-if="step1 === 'done'" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="2 6 5 9 10 3" />
+                        </svg>
+                    </div>
+                    <span class="text-sm transition-opacity duration-500" ng-class="step1 === 'done' ? 'text-white' : 'text-white/40'">Claim has been created.</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors duration-500"
+                         ng-class="step2 === 'done' ? 'border-white' : 'border-white/30'">
+                        <svg ng-if="step2 === 'done'" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="2 6 5 9 10 3" />
+                        </svg>
+                    </div>
+                    <span class="text-sm transition-opacity duration-500" ng-class="step2 === 'done' ? 'text-white' : 'text-white/40'">Files have been submitted.</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors duration-500"
+                         ng-class="step3 === 'done' ? 'border-white' : 'border-white/30'">
+                        <svg ng-if="step3 === 'done'" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="2 6 5 9 10 3" />
+                        </svg>
+                    </div>
+                    <span class="text-sm transition-opacity duration-500" ng-class="step3 === 'done' ? 'text-white' : 'text-white/40'">All information has been verified.</span>
+                </div>
+            </div>
+
+            @* Assessment result *@
+            <div ng-if="allDone() && assessment" class="mt-8 border-t border-white/20 pt-6 space-y-4">
+                <div>
+                    <p class="text-brand-blue font-semibold text-base mb-2">
+                        It appears that this has been {{ categoryLabel() }}:
+                    </p>
+                    <p ng-if="assessment.description" class="text-white/70 text-sm leading-relaxed">{{ assessment.description }}</p>
+                </div>
+
+                <div ng-if="!saved && !flowDone" class="bg-white rounded-2xl px-4 py-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500 text-sm">Do you have any additions?</span>
+                        <div class="flex gap-4">
+                            <button type="button" ng-click="pickAdditions(true)" class="flex items-center gap-1.5 text-sm text-gray-500">
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors"
+                                     ng-class="hasAdditions === true ? 'border-brand-purple' : 'border-gray-300'">
+                                    <div ng-if="hasAdditions === true" class="w-2.5 h-2.5 rounded-full bg-brand-purple"></div>
+                                </div>
+                                Yes
+                            </button>
+                            <button type="button" ng-click="pickAdditions(false)" class="flex items-center gap-1.5 text-sm text-gray-500">
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors"
+                                     ng-class="hasAdditions === false ? 'border-brand-purple' : 'border-gray-300'">
+                                    <div ng-if="hasAdditions === false" class="w-2.5 h-2.5 rounded-full bg-brand-purple"></div>
+                                </div>
+                                No
+                            </button>
+                        </div>
+                    </div>
+
+                    <div ng-if="hasAdditions === true" class="pt-1 border-t border-gray-100">
+                        <textarea ng-model="form.editedDescription" rows="5"
+                                  class="w-full text-brand-purple font-semibold text-base leading-snug bg-transparent outline-none resize-none py-3"
+                                  placeholder="Describe what happened…"></textarea>
+                        <button type="button" ng-click="saveAdditions()"
+                                ng-disabled="saving || !form.editedDescription.trim()"
+                                class="w-full bg-brand-purple text-white rounded-full py-3 text-sm font-semibold disabled:opacity-40 transition-opacity">
+                            {{ saving ? 'Sending…' : 'Send & Done' }}
+                        </button>
+                    </div>
+                </div>
+
+                <div ng-if="saved" class="bg-white/10 rounded-2xl px-4 py-4 text-center">
+                    <p class="text-white text-sm font-medium">Your addition has been submitted.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @* Category-specific follow-up flow. The flow-walker directive
+       reveals one card at a time from CATEGORY_FLOWS[category] and
+       tail-ends with an <evidence-section> for any remaining AC
+       evidence requests. *@
+    <div ng-if="allDone() && assessment && (saved || hasAdditions === false) && !flowDone" class="w-full max-w-lg mx-auto">
+        <flow-walker category="assessment.category"
+                     claim-id="'@Html.Raw(claimId)'"
+                     evidence-requests="evidenceRequests"
+                     on-done="onFlowDone()"></flow-walker>
+    </div>
+
+    <div ng-if="flowDone && review()" class="w-full max-w-lg mx-auto px-4 py-6">
+        <div class="bg-white rounded-2xl px-6 py-7 shadow-sm space-y-5">
+            <div class="text-center space-y-3">
+                <div class="w-14 h-14 mx-auto rounded-full bg-brand-blue/10 flex items-center justify-center">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-blue">
+                        <polyline points="5 12 10 17 19 7" />
+                    </svg>
+                </div>
+                <p class="text-gray-700 font-semibold text-base">Thank you!</p>
+                <p ng-if="!review().hasAnyExtras" class="text-gray-500 text-sm">
+                    Your claim has been submitted. We'll be in touch as soon as we've reviewed everything.
+                </p>
+            </div>
+
+            <div ng-if="review().reviewCosts.length" class="space-y-2 text-left">
+                <p class="text-gray-700 text-sm font-semibold">Cost decisions</p>
+                <div class="space-y-2">
+                    <div ng-repeat="c in review().reviewCosts" class="flex items-start gap-2.5">
+                        <span class="shrink-0 mt-0.5" ng-class="c.palette.icon">
+                            <svg ng-if="c.status === 'covered'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7" /></svg>
+                            <svg ng-if="c.status === 'partiallyCovered'" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5" /></svg>
+                            <svg ng-if="c.status !== 'covered' && c.status !== 'partiallyCovered'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18" /><line x1="6" y1="18" x2="18" y2="6" /></svg>
+                        </span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-baseline justify-between gap-2">
+                                <p class="text-gray-700 text-sm font-medium truncate">{{ c.classification }}</p>
+                                <p class="text-xs font-semibold shrink-0" ng-class="c.palette.labelCls">{{ c.palette.label }}</p>
+                            </div>
+                            <p ng-if="c.argumentation" class="text-gray-500 text-xs leading-relaxed">{{ c.argumentation }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-if="review().incidentCosts.length" class="space-y-2 text-left">
+                <p class="text-gray-700 text-sm font-semibold">Costs we found</p>
+                <div class="space-y-1.5">
+                    <div ng-repeat="c in review().incidentCosts" class="flex items-start justify-between gap-3 text-sm">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-gray-700 break-words">{{ c.description }}</p>
+                            <p ng-if="c.date" class="text-gray-400 text-xs">{{ c.date }}</p>
+                        </div>
+                        <p ng-if="c.money" class="text-gray-700 font-medium shrink-0 whitespace-nowrap">{{ c.money }}</p>
+                    </div>
+                </div>
+                <p ng-if="review().docTotalText" class="text-gray-400 text-xs pt-1">{{ review().docTotalText }}</p>
+            </div>
+
+            <div ng-if="review().documents.length" class="space-y-2 text-left">
+                <p class="text-gray-700 text-sm font-semibold">Documents received</p>
+                <div class="space-y-1.5">
+                    <div ng-repeat="d in review().documents track by ($index)" class="flex items-start gap-2.5 text-sm">
+                        <span class="shrink-0 mt-0.5 text-gray-400">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8" />
+                            </svg>
+                        </span>
+                        <div class="flex-1 min-w-0 space-y-0.5">
+                            <p class="text-gray-700 break-all">{{ d.filename || 'document' }}</p>
+                            <p ng-if="d.classification && !d.isFaulted" class="text-gray-400 text-xs capitalize">{{ d.classification }}</p>
+                            <p ng-if="d.isFaulted" class="text-rose-500 text-xs">Could not read</p>
+                            <p ng-if="d.summary && !d.isFaulted" class="text-gray-500 text-xs leading-relaxed">{{ d.summary }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p ng-if="review().reference" class="text-center text-gray-400 text-xs pt-2 border-t border-gray-100">
+                Reference: <span class="font-mono text-gray-500">{{ review().reference }}</span>
+            </p>
+        </div>
+    </div>
+
+    <footer class="mt-24 border-t border-gray-200 bg-white py-10 px-4">
+        <div class="max-w-lg mx-auto space-y-3 text-center">
+            <p class="text-xs text-gray-400">© @DateTime.Now.Year The Insurance Company. All rights reserved.</p>
+            <div class="flex justify-center gap-5 text-xs text-gray-500">
+                <a class="hover:text-gray-700 cursor-default">Privacy</a>
+                <a class="hover:text-gray-700 cursor-default">Terms</a>
+                <a class="hover:text-gray-700 cursor-default">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+</main>
+
+@section Scripts {
+    <script>
+        window.__claimId = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(claimId));
+    </script>
+    <script src="~/js/filePreview.js" asp-append-version="true"></script>
+    <script src="~/app/claimFlows.js" asp-append-version="true"></script>
+    <script src="~/app/directives/questionCard.js" asp-append-version="true"></script>
+    <script src="~/app/directives/flowWalker.js" asp-append-version="true"></script>
+    <script src="~/app/directives/evidenceSection.js" asp-append-version="true"></script>
+    <script src="~/app/controllers/claimSubmittedController.js" asp-append-version="true"></script>
+}

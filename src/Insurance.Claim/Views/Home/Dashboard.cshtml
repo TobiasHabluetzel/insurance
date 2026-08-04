@@ -1,0 +1,70 @@
+@model Insurance.Claim.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@await Html.PartialAsync("_BrandHeader")
+
+<main class="flex-1 px-4 py-5 space-y-4 max-w-lg mx-auto w-full bg-gray-50">
+
+    <p class="text-gray-700 text-base px-1">
+        Welcome back, <strong>@Model.HolderFirstName</strong>
+    </p>
+
+    @* Chat bar — placeholder button until the bot page is ported. *@
+    <a href="/bot" class="bg-white rounded-full px-5 py-3.5 flex items-center justify-between shadow-sm">
+        <span class="text-gray-400 text-sm">How may I help you?</span>
+        <span class="w-9 h-9 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center">
+            <svg class="text-brand-blue" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+        </span>
+    </a>
+
+    @* Summary card. `--brand-gradient` isn't defined yet — using solid brand colour for now. *@
+    <div class="rounded-3xl overflow-hidden bg-brand-purple">
+        <div class="px-6 pt-5 pb-4">
+            <p class="text-xs font-semibold tracking-widest uppercase mb-3 text-brand-purple-muted">Finance</p>
+            <div class="flex items-center justify-between py-3 border-b border-white/10">
+                <div class="flex items-center gap-4">
+                    <span class="text-white text-4xl font-light">@Model.ClaimsCount</span>
+                    <span class="text-white text-base">Open Cases</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between py-3">
+                <div class="flex items-center gap-4">
+                    <span class="text-white text-4xl font-light">0</span>
+                    <span class="text-white text-base">Uploaded Receipts</span>
+                </div>
+            </div>
+        </div>
+        <div class="px-6 pb-5 bg-black/10">
+            <p class="text-brand-purple-muted text-xs font-semibold tracking-widest uppercase mb-3 pt-4">Messages</p>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="text-white text-4xl font-light">0</span>
+                    <span class="text-white text-base">New Messages</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl px-6 py-4 shadow-sm">
+        <h2 class="text-gray-800 font-bold text-lg mb-4">Quick Access</h2>
+        <a href="/file-claim/@Model.PolicyId" class="w-full flex items-center justify-between py-4 border-b border-gray-100 text-left">
+            <span class="text-brand-blue font-medium">File Claim</span>
+            <svg class="text-brand-blue" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+            </svg>
+        </a>
+        <button type="button" class="w-full flex items-center justify-between py-4 text-left">
+            <span class="text-brand-blue font-medium">Emergency Contact</span>
+            <svg class="text-brand-blue" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+            </svg>
+        </button>
+    </div>
+
+</main>

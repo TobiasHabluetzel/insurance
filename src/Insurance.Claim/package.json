@@ -1,0 +1,12 @@
+{
+  "name": "degoudse-web-mvc-styles",
+  "private": true,
+  "description": "Tailwind CSS build for the MVC project. Not a JS runtime — just uses the tailwindcss CLI to compile Styles/site.css → wwwroot/css/site.css. Run once via `npm run build`, or `npm run watch` during dev.",
+  "scripts": {
+    "build": "tailwindcss -i ./Styles/site.css -o ./wwwroot/css/site.css --minify",
+    "watch": "tailwindcss -i ./Styles/site.css -o ./wwwroot/css/site.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

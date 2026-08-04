@@ -1,0 +1,38 @@
+@model Insurance.Claim.Models.PolicyEntryViewModel
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+@await Html.PartialAsync("_BrandHeader")
+
+<main class="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-gray-50">
+    <div class="w-full max-w-sm">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Welcome</h1>
+        <p class="text-gray-500 mb-8 text-sm">Enter your policy number to get started</p>
+
+        <form asp-action="Lookup" method="post" class="space-y-4" novalidate>
+            <div>
+                <label asp-for="Number" class="block text-sm font-medium text-gray-600 mb-1.5"></label>
+                <input asp-for="Number"
+                       placeholder="e.g. 1234567"
+                       autofocus
+                       class="w-full bg-white rounded-2xl px-4 py-4 text-gray-800 shadow-sm outline-none border border-transparent focus:border-brand-purple text-base" />
+                <span asp-validation-for="Number" class="text-red-500 text-sm"></span>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Error))
+            {
+                <div class="text-red-500 text-sm bg-red-50 px-4 py-3 rounded-xl">@Model.Error</div>
+            }
+
+            <button type="submit"
+                    class="w-full bg-brand-purple text-white rounded-full py-4 font-semibold text-base flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                Continue
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                </svg>
+            </button>
+        </form>
+    </div>
+</main>

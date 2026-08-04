@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    var claimAppUrl = ViewData["ClaimAppUrl"] as string ?? "";
+    var botUrl = ViewData["BotUrl"] as string ?? "";
+    var claimEmail = ViewData["ClaimEmail"] as string ?? "";
+}
+@inject Insurance.Portal.Services.BrandTheme Brand
+
+<main ng-controller="DashboardController" class="min-h-screen bg-gray-50">
+
+    <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-md bg-brand-purple flex items-center justify-center text-white font-bold text-sm">
+                @Brand.CompanyName[0]
+            </div>
+            <div class="leading-tight">
+                <div class="text-gray-800 font-semibold text-sm">@Brand.CompanyName</div>
+                <div class="text-gray-400 text-xs">@Brand.Tagline</div>
+            </div>
+        </div>
+        <button ng-click="signOut()" class="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1.5">
+            <span class="w-7 h-7 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center text-xs font-bold">
+                {{ holderInitial() }}
+            </span>
+            <span ng-if="data">{{ holderName() }}</span>
+            <span class="text-gray-400 text-xs ml-1">Sign out</span>
+        </button>
+    </header>
+
+    <div class="max-w-3xl mx-auto px-6 py-8 space-y-6">
+        <p ng-if="data" class="text-gray-700 font-medium">
+            Welcome back, <span class="text-gray-900 font-semibold">{{ data.firstName }}</span>
+        </p>
+
+        <div ng-if="error" class="bg-red-50 border border-red-100 rounded-2xl px-5 py-4 text-sm text-red-600">
+            {{ error }}
+        </div>
+
+        <div ng-if="!data && !error" class="space-y-3">
+            <div class="bg-white rounded-2xl h-28 animate-pulse"></div>
+            <div class="bg-white rounded-2xl h-28 animate-pulse"></div>
+        </div>
+
+        <section ng-if="data">
+            <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Insurance</h2>
+            <div ng-if="!data.policies.length" class="bg-white rounded-2xl px-5 py-6 text-sm text-gray-500">
+                No policies found on your account.
+            </div>
+            <div ng-if="data.policies.length" class="space-y-3">
+                <policy-card ng-repeat="p in data.policies track by p.policyId"
+                             policy="p" holder-name="holderName()" config="config"></policy-card>
+            </div>
+        </section>
+    </div>
+
+    <chat-widget bot-url="@botUrl"></chat-widget>
+</main>
+
+@section Scripts {
+    <script>
+        window.__portalConfig = {
+            claimAppUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(claimAppUrl)),
+            claimEmail: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(claimEmail))
+        };
+    </script>
+    <script src="~/app/directives/policyCard.js" asp-append-version="true"></script>
+    <script src="~/app/directives/chatWidget.js" asp-append-version="true"></script>
+    <script src="~/app/controllers/dashboardController.js" asp-append-version="true"></script>
+}

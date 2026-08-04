@@ -1,0 +1,67 @@
+@model string
+@{
+    ViewData["Title"] = "Finish your claim";
+    var claimId = Model;
+}
+
+@await Html.PartialAsync("_BrandHeader")
+
+<main ng-controller="ClaimEvidenceController" class="flex-1 flex flex-col bg-gray-50">
+
+    <div class="w-full max-w-lg mx-auto flex-1 px-4 py-6 space-y-4">
+        <div ng-if="!done" class="space-y-2">
+            <p class="text-gray-700 font-semibold text-base">Finish your claim</p>
+            <p class="text-gray-500 text-sm leading-relaxed">
+                Thanks for emailing us. To wrap your claim up, please add anything we still need below.
+            </p>
+            <p ng-if="reference" class="text-gray-400 text-xs">
+                Reference: <span class="font-mono text-gray-500">{{ reference }}</span>
+            </p>
+        </div>
+
+        <div ng-if="!done && assessment.description" class="bg-white rounded-2xl px-4 py-4 shadow-sm">
+            <p class="text-gray-500 text-xs font-semibold mb-1">What you told us</p>
+            <p class="text-gray-700 text-sm leading-relaxed">{{ assessment.description }}</p>
+        </div>
+
+        <evidence-section ng-if="!done && evidenceRequests.length"
+                          requests="evidenceRequests" claim-id="claimId" on-done="onDone()"></evidence-section>
+
+        <div ng-if="!done && !evidenceRequests.length && !assessment" class="bg-white rounded-2xl px-6 py-8 text-center shadow-sm">
+            <p class="text-gray-500 text-sm">Loading your claim…</p>
+        </div>
+
+        <div ng-if="done" class="bg-white rounded-2xl px-6 py-8 text-center space-y-3 shadow-sm">
+            <div class="w-14 h-14 mx-auto rounded-full bg-brand-blue/10 flex items-center justify-center">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-blue">
+                    <polyline points="5 12 10 17 19 7" />
+                </svg>
+            </div>
+            <p class="text-gray-700 font-semibold text-base">Thank you!</p>
+            <p class="text-gray-500 text-sm">
+                We have everything we need. We'll review your claim and be in touch shortly.
+            </p>
+        </div>
+    </div>
+
+    <footer class="mt-24 border-t border-gray-200 bg-white py-10 px-4">
+        <div class="max-w-lg mx-auto space-y-3 text-center">
+            <p class="text-xs text-gray-400">© @DateTime.Now.Year The Insurance Company. All rights reserved.</p>
+            <div class="flex justify-center gap-5 text-xs text-gray-500">
+                <a class="hover:text-gray-700 cursor-default">Privacy</a>
+                <a class="hover:text-gray-700 cursor-default">Terms</a>
+                <a class="hover:text-gray-700 cursor-default">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+</main>
+
+@section Scripts {
+    <script>
+        window.__claimId = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(claimId));
+    </script>
+    <script src="~/js/filePreview.js" asp-append-version="true"></script>
+    <script src="~/app/directives/evidenceSection.js" asp-append-version="true"></script>
+    <script src="~/app/controllers/claimEvidenceController.js" asp-append-version="true"></script>
+}

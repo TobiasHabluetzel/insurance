@@ -1,0 +1,26 @@
+@inject Insurance.Portal.Services.BrandTheme Brand
+<!DOCTYPE html>
+<html lang="en" data-theme="@Brand.Design" ng-app="portalApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · @Brand.CompanyName</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="min-h-screen">
+    @RenderBody()
+
+    @* jQuery + AngularJS 1.x — same stack as the degoudseclaim MVC port. *@
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="~/app/app.module.js" asp-append-version="true"></script>
+    <script src="~/app/services/authSvc.js" asp-append-version="true"></script>
+    <script src="~/app/services/portalSvc.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

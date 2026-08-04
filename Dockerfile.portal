@@ -1,0 +1,23 @@
+# Insurance.Portal — MVC frontend (login + dashboard). Reverse-proxies
+# /api/* to Insurance.Api via YARP.
+
+FROM node:20-alpine AS styles
+WORKDIR /app
+COPY src/Insurance.Portal/package*.json ./
+RUN npm ci
+COPY src/Insurance.Portal/ ./
+RUN npm run build
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS backend
+WORKDIR /src
+COPY src/Insurance.Portal/Insurance.Portal.csproj ./
+RUN dotnet restore
+COPY src/Insurance.Portal/ ./
+COPY --from=styles /app/wwwroot/css/site.css wwwroot/css/site.css
+RUN dotnet publish -c Release -o /publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=backend /publish .
+EXPOSE 8080
+CMD ["sh", "-c", "ASPNETCORE_HTTP_PORTS=${PORT:-8080} dotnet Insurance.Portal.dll"]

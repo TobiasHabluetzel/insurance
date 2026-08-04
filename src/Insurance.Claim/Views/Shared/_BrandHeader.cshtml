@@ -1,0 +1,12 @@
+@inject Insurance.Claim.Services.BrandTheme Brand
+<header class="bg-white px-5 py-4 shadow-sm flex items-center gap-2">
+    <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-md bg-brand-purple flex items-center justify-center text-white font-bold text-sm">
+            @Brand.CompanyName[0]
+        </div>
+        <div class="leading-tight">
+            <div class="text-gray-800 font-semibold text-sm">@Brand.CompanyName</div>
+            <div class="text-gray-400 text-xs">@Brand.Tagline</div>
+        </div>
+    </div>
+</header>

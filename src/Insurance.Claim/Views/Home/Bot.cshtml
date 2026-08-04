@@ -1,0 +1,131 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "File a claim";
+}
+@inject Insurance.Claim.Services.BrandTheme Brand
+@* The bot page runs headerless — it's embedded as a widget iframe on the
+   portal, so the shell/layout would just get in the way. Everything the
+   full layout does (fonts, tailwind, brand palette, behavior collector
+   bootstrap) is inlined so the widget is self-contained. *@
+<!DOCTYPE html>
+<html lang="en" data-theme="@Brand.Design" ng-app="degoudseApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · @Brand.CompanyName</title>
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <script src="~/js/behavior/types.js" asp-append-version="true"></script>
+    <script src="~/js/behavior/collector.js" asp-append-version="true"></script>
+    <script src="~/js/behavior/handoff.js" asp-append-version="true"></script>
+    <script src="~/js/behavior/serialize.js" asp-append-version="true"></script>
+    <script>window.__behavior.collector.init({ consentLevel: 'basic' });</script>
+</head>
+<body class="h-screen">
+
+    <div ng-controller="BotController" class="h-screen flex flex-col bg-white">
+        <header class="bg-brand-purple text-white rounded-b-3xl px-5 pt-5 pb-6 flex items-start justify-between">
+            <div>
+                <p class="text-lg font-bold leading-tight">File a claim</p>
+                <p class="text-white/70 text-sm mt-0.5">Report or manage your claim</p>
+            </div>
+            <button type="button" ng-click="close()" aria-label="Close"
+                    class="text-white/80 hover:text-white text-2xl leading-none">×</button>
+        </header>
+
+        <div id="bot-scroll" class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+            <div ng-repeat="m in messages track by $index"
+                 class="flex" ng-class="m.role === 'user' ? 'justify-end' : 'justify-start'">
+                <div class="max-w-[85%] rounded-2xl px-4 py-3 text-sm whitespace-pre-line leading-relaxed"
+                     ng-class="m.role === 'user' ? 'bg-brand-purple text-white' : 'bg-gray-100 text-gray-800'"
+                     ng-bind-html="renderInline(m.text)"></div>
+            </div>
+            <div ng-if="sending" class="flex justify-start">
+                <div class="max-w-[85%] rounded-2xl px-4 py-3 text-sm bg-gray-100 text-gray-800">…</div>
+            </div>
+
+            <div ng-if="options && !sending" class="space-y-1.5 pt-1">
+                <button ng-repeat="opt in options track by opt" type="button" ng-click="sendMessage(opt)"
+                        class="w-full bg-white border border-gray-200 text-gray-700 rounded-xl px-4 py-2 text-left text-sm hover:border-brand-purple hover:text-brand-purple transition-colors">
+                    <span class="font-medium">{{ splitOption(opt).primary }}</span>
+                    <span ng-if="splitOption(opt).secondary" class="text-gray-400 ml-2">{{ splitOption(opt).secondary }}</span>
+                </button>
+            </div>
+
+            <div ng-if="awaitingUpload && !sending"
+                 class="bg-gray-50 rounded-2xl px-4 py-4 border border-dashed border-gray-200">
+                <button type="button" onclick="document.getElementById('bot-file').click()" class="w-full flex items-center justify-between text-left">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700">Add documents</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Bills, receipts, photos…</p>
+                    </div>
+                    <span class="text-brand-blue">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+                            <path d="M12 12v9" />
+                            <polyline points="8 17 12 12 16 17" />
+                        </svg>
+                    </span>
+                </button>
+                <div ng-if="files.length" class="flex flex-wrap gap-2 mt-3">
+                    <span ng-repeat="f in files track by $index" class="text-xs bg-white rounded-full px-3 py-1.5 flex items-center gap-2 shadow-sm">
+                        📎 {{ f.name }}
+                        <button ng-click="removeFile($index)" class="text-gray-400 hover:text-rose-500 leading-none" aria-label="Remove {{ f.name }}">×</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div ng-if="!finished()" class="border-t border-gray-100 bg-white px-3 py-3">
+            <div class="flex items-center gap-2">
+                <input type="text"
+                       ng-model="form.input"
+                       ng-change="onInputChange()"
+                       ng-focus="onInputFocus()"
+                       ng-blur="onInputBlur()"
+                       ng-paste="onInputPaste($event)"
+                       ng-keydown="onKey($event)"
+                       ng-disabled="sending"
+                       placeholder="Type your reply…" autofocus
+                       class="flex-1 border border-gray-200 rounded-full px-4 py-2.5 text-sm outline-none focus:border-brand-purple disabled:opacity-60" />
+                <button ng-click="sendMessage(form.input)" ng-disabled="sending || !form.input.trim()"
+                        class="bg-brand-purple text-white rounded-full px-5 py-2.5 text-sm font-semibold disabled:opacity-40">Send</button>
+            </div>
+        </div>
+
+        @* File input lives OUTSIDE the ng-if so it's always in the DOM
+           and always reachable by document.getElementById. If it were
+           inside the ng-if wrapper above, AngularJS could remove and
+           reinsert it on any expression change, orphaning the change
+           listener we attach from the bridge IIFE below. *@
+        <input type="file" id="bot-file" multiple class="hidden" />
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="~/app/app.module.js" asp-append-version="true"></script>
+    <script src="~/app/services/policySvc.js" asp-append-version="true"></script>
+    <script src="~/app/services/behaviorSvc.js" asp-append-version="true"></script>
+    <script src="~/app/controllers/botController.js" asp-append-version="true"></script>
+    <script>
+        // Bridge the vanilla <input type="file"> change event into the
+        // AngularJS BotController scope. Event-delegated on document so
+        // any recreation of the file input by AngularJS (ng-if churn)
+        // keeps working, and so we don't depend on DOMContentLoaded
+        // timing versus AngularJS bootstrap.
+        document.addEventListener('change', function (e) {
+            if (!e.target || e.target.id !== 'bot-file') return;
+            var el = document.querySelector('[ng-controller=BotController]');
+            if (!el) return;
+            var scope = angular.element(el).scope();
+            if (!scope || typeof scope.pickFiles !== 'function') return;
+            scope.$apply(function () { scope.pickFiles(e.target.files); });
+            e.target.value = '';
+        });
+    </script>
+</body>
+</html>

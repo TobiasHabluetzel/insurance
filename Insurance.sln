@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F8F2F9AC-0BDF-434F-8344-CC571783ABC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Insurance.Api", "src\Insurance.Api\Insurance.Api.csproj", "{9B238B40-20D5-49AB-A790-01CCD613DF80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Insurance.Portal", "src\Insurance.Portal\Insurance.Portal.csproj", "{C3A6E28F-0906-4F20-A0DA-77ED3BD5506C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Insurance.Claim", "src\Insurance.Claim\Insurance.Claim.csproj", "{3C93A532-33B6-42C7-9D24-1C16E137CF35}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B238B40-20D5-49AB-A790-01CCD613DF80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B238B40-20D5-49AB-A790-01CCD613DF80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B238B40-20D5-49AB-A790-01CCD613DF80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B238B40-20D5-49AB-A790-01CCD613DF80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3A6E28F-0906-4F20-A0DA-77ED3BD5506C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3A6E28F-0906-4F20-A0DA-77ED3BD5506C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3A6E28F-0906-4F20-A0DA-77ED3BD5506C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3A6E28F-0906-4F20-A0DA-77ED3BD5506C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C93A532-33B6-42C7-9D24-1C16E137CF35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C93A532-33B6-42C7-9D24-1C16E137CF35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C93A532-33B6-42C7-9D24-1C16E137CF35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C93A532-33B6-42C7-9D24-1C16E137CF35}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9B238B40-20D5-49AB-A790-01CCD613DF80} = {F8F2F9AC-0BDF-434F-8344-CC571783ABC5}
+		{C3A6E28F-0906-4F20-A0DA-77ED3BD5506C} = {F8F2F9AC-0BDF-434F-8344-CC571783ABC5}
+		{3C93A532-33B6-42C7-9D24-1C16E137CF35} = {F8F2F9AC-0BDF-434F-8344-CC571783ABC5}
+	EndGlobalSection
+EndGlobal

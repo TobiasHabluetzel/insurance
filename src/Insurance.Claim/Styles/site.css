@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Brand palette exposed as CSS custom properties. The [data-theme=…]
+     variants let a single stylesheet cover degoudse / saltsys / globalexcel;
+     _Layout picks which one via server-side config. */
+  :root,
+  [data-theme='degoudse'] {
+    --brand-primary: #6B2D8B;
+    --brand-primary-dark: #4A1A6A;
+    --brand-primary-card: #5C2282;
+    --brand-primary-muted: #D8B4FE;
+    --brand-accent: #2B9ED6;
+    --brand-accent-light: #D6EEF8;
+  }
+  [data-theme='saltsys'] {
+    --brand-primary: #1D3D35;
+    --brand-primary-dark: #152B25;
+    --brand-primary-card: #1A3530;
+    --brand-primary-muted: #86C4B3;
+    --brand-accent: #4A8FA8;
+    --brand-accent-light: #D0E8F0;
+  }
+  [data-theme='globalexcel'] {
+    --brand-primary: #0C3B5D;
+    --brand-primary-dark: #082A44;
+    --brand-primary-card: #0F4470;
+    --brand-primary-muted: #7B98B0;
+    --brand-accent: #5B95B8;
+    --brand-accent-light: #D5E4ED;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: #F0F4F7;
+    font-family: Inter, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}

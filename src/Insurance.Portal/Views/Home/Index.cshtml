@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Sign in";
+}
+
+<main ng-controller="LoginController" class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div class="w-full max-w-sm bg-white rounded-2xl shadow-sm px-6 py-8 space-y-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Sign in</h1>
+            <p class="text-sm text-gray-500 mt-1">Access your policies and claims</p>
+        </div>
+
+        @* Step 1 — enter email *@
+        <form ng-if="step === 'email'" ng-submit="submitEmail()" class="space-y-4" novalidate>
+            <div>
+                <label class="text-sm font-medium text-gray-700 block mb-1">Email address</label>
+                <input type="email" ng-model="form.email" required autofocus placeholder="you@example.com"
+                       class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-brand-purple" />
+            </div>
+            <p ng-if="error" class="text-sm text-red-500">{{ error }}</p>
+            <button type="submit" ng-disabled="loading || !form.email.trim()"
+                    class="w-full bg-brand-purple text-white rounded-full py-3 text-sm font-semibold disabled:opacity-40">
+                {{ loading ? 'Checking…' : 'Continue' }}
+            </button>
+            <div class="relative flex items-center gap-3">
+                <div class="flex-1 border-t border-gray-200"></div>
+                <span class="text-xs text-gray-400">or</span>
+                <div class="flex-1 border-t border-gray-200"></div>
+            </div>
+            <div class="space-y-2">
+                <button type="button" ng-click="goOAuth('google')"
+                        class="w-full border border-gray-200 rounded-full py-2.5 text-sm font-medium text-gray-700 flex items-center justify-center gap-2">
+                    Continue with Google
+                </button>
+                <button type="button" ng-click="goOAuth('microsoft')"
+                        class="w-full border border-gray-200 rounded-full py-2.5 text-sm font-medium text-gray-700 flex items-center justify-center gap-2">
+                    Continue with Microsoft
+                </button>
+            </div>
+        </form>
+
+        @* Step 2 — password (also shows SSO providers if the account has any) *@
+        <form ng-if="step === 'password'" ng-submit="submitPassword()" class="space-y-4" novalidate>
+            <p class="text-sm text-gray-500">Signing in as <span class="font-medium text-gray-700">{{ form.email }}</span></p>
+            <div ng-if="externalProviders.length && !hasLocalPassword()" class="space-y-2">
+                <button ng-repeat="p in externalProviders track by p" type="button" ng-click="goOAuth(p.toLowerCase())"
+                        class="w-full border border-gray-200 rounded-full py-2.5 text-sm font-medium text-gray-700">
+                    Continue with {{ p }}
+                </button>
+            </div>
+            <div>
+                <label class="text-sm font-medium text-gray-700 block mb-1">Password</label>
+                <input type="password" ng-model="form.password" required autofocus
+                       class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-brand-purple" />
+            </div>
+            <p ng-if="error" class="text-sm text-red-500">{{ error }}</p>
+            <button type="submit" ng-disabled="loading || !form.password"
+                    class="w-full bg-brand-purple text-white rounded-full py-3 text-sm font-semibold disabled:opacity-40">
+                {{ loading ? 'Signing in…' : 'Sign in' }}
+            </button>
+            <button type="button" ng-click="startOver()" class="w-full text-center text-xs text-gray-400 underline">
+                Use a different email
+            </button>
+        </form>
+
+        @* Step 3 — set password (policy-lookup account bootstrap) *@
+        <form ng-if="step === 'set-password'" ng-submit="submitSetPassword()" class="space-y-4" novalidate>
+            <p class="text-sm text-gray-500">We found your policy. Create a password to finish setting up your account.</p>
+            <div>
+                <label class="text-sm font-medium text-gray-700 block mb-1">Password</label>
+                <input type="password" ng-model="form.password" required autofocus
+                       class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-brand-purple" />
+            </div>
+            <div>
+                <label class="text-sm font-medium text-gray-700 block mb-1">Confirm password</label>
+                <input type="password" ng-model="form.confirmPassword" required
+                       class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-brand-purple" />
+            </div>
+            <p ng-if="error" class="text-sm text-red-500">{{ error }}</p>
+            <button type="submit" ng-disabled="loading || !form.password || !form.confirmPassword"
+                    class="w-full bg-brand-purple text-white rounded-full py-3 text-sm font-semibold disabled:opacity-40">
+                {{ loading ? 'Creating account…' : 'Create account & sign in' }}
+            </button>
+        </form>
+    </div>
+</main>
+
+@section Scripts {
+    <script src="~/app/controllers/loginController.js" asp-append-version="true"></script>
+}

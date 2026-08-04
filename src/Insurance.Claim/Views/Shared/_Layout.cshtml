@@ -1,0 +1,40 @@
+@inject Insurance.Claim.Services.BrandTheme Brand
+<!DOCTYPE html>
+<html lang="en" data-theme="@Brand.Design" ng-app="degoudseApp">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · @Brand.CompanyName</title>
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @* Behavior collector loads early (before jQuery/AngularJS) so it can
+       start the session on the first page paint — same lifecycle as
+       main.tsx in the React project. Consent is hard-coded 'basic'
+       matching the current React setup. Flip to 'none' to disable. *@
+    <script src="~/js/behavior/types.js" asp-append-version="true"></script>
+    <script src="~/js/behavior/collector.js" asp-append-version="true"></script>
+    <script src="~/js/behavior/handoff.js" asp-append-version="true"></script>
+    <script src="~/js/behavior/serialize.js" asp-append-version="true"></script>
+    <script>
+        window.__behavior.collector.init({ consentLevel: 'basic' });
+    </script>
+</head>
+<body class="min-h-screen flex flex-col">
+    @RenderBody()
+
+    @* jQuery + AngularJS 1.x — served from official CDNs. The dev chose
+       this stack; AngularJS is on unsupported LTS since 2021 so security
+       reviews should note that. *@
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="~/app/app.module.js" asp-append-version="true"></script>
+    <script src="~/app/services/policySvc.js" asp-append-version="true"></script>
+    <script src="~/app/services/behaviorSvc.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
