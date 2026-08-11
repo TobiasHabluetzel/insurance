@@ -13,8 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Accepts either the Npgsql key=value form under
 // ConnectionStrings__DefaultConnection or the postgresql://user:pass@host/db
 // URL under DATABASE_URL (Railway's Postgres plugin exposes the URL form).
-var rawConnString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? builder.Configuration["DATABASE_URL"];
+// Note: `?? config[...]` won't fall back if the first source is present but
+// empty (as it can be when the base appsettings.json ships a placeholder).
+// Explicit whitespace check + fallback avoids that trap.
+var rawConnString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(rawConnString))
+    rawConnString = builder.Configuration["DATABASE_URL"];
 if (string.IsNullOrWhiteSpace(rawConnString))
 {
     throw new InvalidOperationException(
