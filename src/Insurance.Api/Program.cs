@@ -10,8 +10,41 @@ using Insurance.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // ---- Database (portal Postgres) --------------------------------------------
-builder.Services.AddDbContext<AppDbContext>(o =>
-    o.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Accepts either the Npgsql key=value form under
+// ConnectionStrings__DefaultConnection or the postgresql://user:pass@host/db
+// URL under DATABASE_URL (Railway's Postgres plugin exposes the URL form).
+var rawConnString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? builder.Configuration["DATABASE_URL"];
+if (string.IsNullOrWhiteSpace(rawConnString))
+{
+    throw new InvalidOperationException(
+        "No database configured. Set ConnectionStrings__DefaultConnection (Npgsql format) " +
+        "or DATABASE_URL (postgres URL format — from a Railway Postgres plugin).");
+}
+var pgConnString = NormalisePostgresConnectionString(rawConnString);
+builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(pgConnString));
+
+static string NormalisePostgresConnectionString(string raw)
+{
+    if (!raw.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase)
+        && !raw.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+    {
+        // Already in Npgsql key=value form.
+        return raw;
+    }
+    var uri = new Uri(raw);
+    var userInfo = uri.UserInfo.Split(':', 2);
+    var user = Uri.UnescapeDataString(userInfo[0]);
+    var pass = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
+    var db = Uri.UnescapeDataString(uri.AbsolutePath.TrimStart('/'));
+    var host = uri.Host;
+    var port = uri.Port > 0 ? uri.Port : 5432;
+    // SSL Mode=Require + Trust Server Certificate=true mirrors Railway's
+    // Postgres plugin: TLS is required, cert is self-signed inside the
+    // private network.
+    return $"Host={host};Port={port};Database={db};Username={user};Password={pass};" +
+           "SSL Mode=Require;Trust Server Certificate=true";
+}
 
 // ---- ASP.NET Identity (portal auth) ----------------------------------------
 // UserName = EmailHash. Passwords stay hashed by Identity's default hasher.
