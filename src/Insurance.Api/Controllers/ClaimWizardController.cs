@@ -15,6 +15,7 @@ public class ClaimWizardController(
     Insurance.Api.Services.ClaimClassificationService classifier,
     Insurance.Api.Services.EmailSender emailSender,
     Insurance.Api.Services.ShortCodeService shortCodes,
+    Insurance.Api.Services.BehaviorLogService behaviorLog,
     IConfiguration config,
     ILogger<ClaimWizardController> logger) : ControllerBase
 {
@@ -245,6 +246,12 @@ public class ClaimWizardController(
     {
         if (string.IsNullOrWhiteSpace(req.AcClaimId)) return BadRequest();
 
+        // Retain before anything else. Previously the only destination was an
+        // email, so an unconfigured recipient meant the signals vanished — and
+        // the management view needs them regardless of whether anyone is being
+        // emailed.
+        behaviorLog.Add(req.AcClaimId, req.Stage ?? "submit", req.Text, req.PriorSubmittedAt);
+
         var to = config["Behavior:EmailTo"];
         if (string.IsNullOrWhiteSpace(to))
         {
@@ -283,6 +290,31 @@ public class ClaimWizardController(
             logger.LogWarning(ex, "[behavior] email send failed for {Claim}", req.AcClaimId);
         }
         return Ok();
+    }
+
+    /// <summary>
+    /// The behavioural signals recorded for a claim, for the management view.
+    ///
+    /// Returns the batches as collected rather than an interpretation: naming
+    /// what a signal *means* ("pasted rather than typed") is a presentation
+    /// decision, and keeping it in the frontend means the wording can change
+    /// without a deploy of the API.
+    /// </summary>
+    [HttpGet("claims/{claimId}/behavior")]
+    public IActionResult GetBehavior(string claimId)
+    {
+        var batches = behaviorLog.Get(claimId);
+        return Ok(new
+        {
+            claimId,
+            batches = batches.Select(b => new
+            {
+                stage = b.Stage,
+                receivedAt = b.ReceivedAt,
+                priorSubmittedAt = b.PriorSubmittedAt,
+                events = b.Events,
+            }),
+        });
     }
 
     [HttpPost("webhook")]

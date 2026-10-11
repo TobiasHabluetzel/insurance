@@ -119,6 +119,7 @@ builder.Services.AddScoped<TokenService>();
 
 // ---- Claim + bot + email services ----------------------------------------
 builder.Services.AddSingleton<ClaimEventService>();
+builder.Services.AddSingleton<BehaviorLogService>();
 builder.Services.AddScoped<ClaimClassificationService>();
 builder.Services.AddScoped<EmailExtractionService>();
 builder.Services.AddScoped<EmailSender>();
