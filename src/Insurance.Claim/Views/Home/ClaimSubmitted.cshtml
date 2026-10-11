@@ -153,7 +153,10 @@
                                 <p class="text-gray-700 text-sm font-medium truncate">{{ c.classification }}</p>
                                 <p class="text-xs font-semibold shrink-0" ng-class="c.palette.labelCls">{{ c.palette.label }}</p>
                             </div>
-                            <p ng-if="c.argumentation" class="text-gray-500 text-xs leading-relaxed">{{ c.argumentation }}</p>
+                            @* The insurer's reasoning for the decision. Shown only in the
+                               management view — a claimant seeing the machine argue why
+                               their cost is uncovered is not the experience we want. *@
+                            <p ng-if="c.argumentation && isManagement()" class="text-gray-500 text-xs leading-relaxed">{{ c.argumentation }}</p>
                         </div>
                     </div>
                 </div>
@@ -170,7 +173,7 @@
                         <p ng-if="c.money" class="text-gray-700 font-medium shrink-0 whitespace-nowrap">{{ c.money }}</p>
                     </div>
                 </div>
-                <p ng-if="review().docTotalText" class="text-gray-400 text-xs pt-1">{{ review().docTotalText }}</p>
+                <p ng-if="review().docTotalText && isManagement()" class="text-gray-400 text-xs pt-1">{{ review().docTotalText }}</p>
             </div>
 
             <div ng-if="review().documents.length" class="space-y-2 text-left">
@@ -186,9 +189,66 @@
                             <p class="text-gray-700 break-all">{{ d.filename || 'document' }}</p>
                             <p ng-if="d.classification && !d.isFaulted" class="text-gray-400 text-xs capitalize">{{ d.classification }}</p>
                             <p ng-if="d.isFaulted" class="text-rose-500 text-xs">Could not read</p>
-                            <p ng-if="d.summary && !d.isFaulted" class="text-gray-500 text-xs leading-relaxed">{{ d.summary }}</p>
+                            @* Machine summary of the document — internal. *@
+                            <p ng-if="d.summary && !d.isFaulted && isManagement()" class="text-gray-500 text-xs leading-relaxed">{{ d.summary }}</p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            @* ───────── Management view ─────────────────────────────────
+               Only rendered when the insurer lens is on. Everything here is
+               derived from data the claim already receives — nothing extra is
+               collected for it. *@
+            <div ng-if="isManagement()" class="space-y-5 text-left border-t-2 border-amber-200 pt-5">
+
+                <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                    <p class="text-amber-700 text-sm font-semibold">Insurer view</p>
+                    <span class="text-gray-400 text-xs">not visible to the claimant</span>
+                </div>
+
+                @* Behavioural signals, in plain language. *@
+                <div class="space-y-2">
+                    <div class="flex items-baseline justify-between gap-2">
+                        <p class="text-gray-700 text-sm font-semibold">Behavioural signals</p>
+                        <p ng-if="behavior" class="text-gray-400 text-xs">
+                            {{ behavior.summary.total }} events<span ng-if="behavior.summary.duration"> over {{ behavior.summary.duration }}</span>
+                        </p>
+                    </div>
+
+                    <p ng-if="behaviorLoading" class="text-gray-400 text-xs">Loading…</p>
+                    <p ng-if="behaviorError" class="text-rose-500 text-xs">Could not load behavioural signals.</p>
+                    <p ng-if="behavior && !behavior.findings.length" class="text-gray-400 text-xs">
+                        Nothing noted. Signals are collected in the browser that filed the claim,
+                        so a claim submitted elsewhere shows none here.
+                    </p>
+
+                    <div ng-repeat="f in behavior.findings" class="flex items-start gap-2.5 text-sm">
+                        <span class="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full"
+                              ng-class="f.weight === 'notable' ? 'bg-amber-500' : 'bg-gray-300'"></span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-gray-700">{{ f.title }}</p>
+                            <p class="text-gray-500 text-xs leading-relaxed">{{ f.detail }}</p>
+                        </div>
+                    </div>
+
+                    @* Said plainly, because a panel like this invites over-reading. *@
+                    <p ng-if="behavior && behavior.findings.length" class="text-gray-400 text-xs leading-relaxed pt-1">
+                        Observations, not conclusions. None of these indicates fraud on its own —
+                        they are prompts for a human assessor. Field contents are never recorded,
+                        only how the form was filled in.
+                    </p>
+                </div>
+
+                @* The full payload, for when someone asks "what does it actually send?" *@
+                <div class="space-y-2">
+                    <button type="button" ng-click="showRaw = !showRaw"
+                            class="text-gray-500 text-xs font-semibold hover:text-gray-700">
+                        {{ showRaw ? '▾' : '▸' }} Raw claim payload from automated.claims
+                    </button>
+                    <pre ng-if="showRaw"
+                         class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-[10px] leading-relaxed text-gray-600 overflow-x-auto max-h-80">{{ rawPayload() }}</pre>
                 </div>
             </div>
 

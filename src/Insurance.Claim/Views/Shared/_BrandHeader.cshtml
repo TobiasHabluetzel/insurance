@@ -1,4 +1,5 @@
 @inject Insurance.Claim.Services.BrandTheme Brand
+@inject Insurance.Claim.Services.DemoOptions Demo
 <header class="bg-white px-5 py-4 shadow-sm flex items-center gap-2">
     <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-md bg-brand-purple flex items-center justify-center text-white font-bold text-sm">
@@ -9,4 +10,24 @@
             <div class="text-gray-400 text-xs">@Brand.Tagline</div>
         </div>
     </div>
+
+    @* Demo-only. Rendered only when Demo:ManagementView is on, so a real
+       deployment has no way to reach the insurer-side panels. *@
+    @if (Demo.ManagementView)
+    {
+        <div class="ml-auto" ng-controller="ViewModeController">
+            <button type="button" ng-click="toggle()"
+                    class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors"
+                    ng-class="isManagement()
+                        ? 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                        : 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50'"
+                    ng-attr-title="{{ isManagement()
+                        ? 'Showing the insurer view — switch back to what the customer sees'
+                        : 'Switch to the insurer view' }}">
+                <span class="w-1.5 h-1.5 rounded-full"
+                      ng-class="isManagement() ? 'bg-amber-500' : 'bg-gray-300'"></span>
+                {{ isManagement() ? 'Management view' : 'Customer view' }}
+            </button>
+        </div>
+    }
 </header>

@@ -15,8 +15,8 @@
     'use strict';
 
     angular.module('degoudseApp').controller('ClaimSubmittedController',
-        ['$scope', '$window', '$timeout', '$http', 'behaviorSvc',
-        function ($scope, $window, $timeout, $http, behaviorSvc) {
+        ['$scope', '$window', '$timeout', '$http', 'behaviorSvc', 'viewModeSvc',
+        function ($scope, $window, $timeout, $http, behaviorSvc, viewModeSvc) {
 
             var claimId = $window.__claimId;
 
@@ -56,6 +56,40 @@
             };
             es.onerror = function () { es.close(); };
             $scope.$on('$destroy', function () { es.close(); });
+
+            // ---- management view -------------------------------------
+            // The behavioural signals are only fetched when the insurer view is
+            // actually opened. A claimant on the customer view never causes the
+            // request, so the panel costs them nothing.
+            $scope.isManagement = viewModeSvc.isManagement;
+            $scope.behavior = null;
+            $scope.behaviorLoading = false;
+            $scope.behaviorError = false;
+            $scope.showRaw = false;
+
+            function loadBehavior() {
+                if ($scope.behavior || $scope.behaviorLoading) return;
+                $scope.behaviorLoading = true;
+                $scope.behaviorError = false;
+                $http.get('/api/claimwizard/claims/' + encodeURIComponent(claimId) + '/behavior')
+                    .then(function (res) {
+                        var batches = (res.data && res.data.batches) || [];
+                        $scope.behavior = $window.__behaviorFindings.build(batches);
+                    })
+                    .catch(function () { $scope.behaviorError = true; })
+                    .finally(function () { $scope.behaviorLoading = false; });
+            }
+
+            if (viewModeSvc.isManagement()) loadBehavior();
+            $scope.$on('viewMode:changed', function (_e, mode) {
+                if (mode === viewModeSvc.MANAGEMENT) loadBehavior();
+            });
+
+            $scope.rawPayload = function () {
+                if (!$scope.assessment || !$scope.assessment.raw) return '';
+                try { return JSON.stringify($scope.assessment.raw, null, 2); }
+                catch (e) { return '(could not serialise)'; }
+            };
 
             $scope.categoryLabel = function () {
                 if (!$scope.assessment) return 'a claim';

@@ -25,6 +25,11 @@ builder.Services.AddScoped<PolicyApiClient>();
 builder.Services.AddSingleton(sp => new BrandTheme(
     builder.Configuration["Design"] ?? "degoudse"));
 
+// Demo-only switches, read once at startup like the brand theme so they cannot
+// be flipped by a query string. Off by default — see DemoOptions.
+builder.Services.AddSingleton(sp => new DemoOptions(
+    builder.Configuration.GetValue("Demo:ManagementView", false)));
+
 // Reverse proxy: /api/* → the Insurance.Api service. Configured off the
 // same Api:Endpoint env var used by PolicyApiClient so there's a single
 // source of truth. The browser still calls "/api/..." on same origin —
