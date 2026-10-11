@@ -22,3 +22,6 @@ src/*/wwwroot/css/site.css
 # Env files that might contain secrets
 *.env
 .env.local
+
+# Word lock files, created while a .docx is open
+~$*
