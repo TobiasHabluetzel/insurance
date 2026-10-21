@@ -160,8 +160,11 @@ unlocks everything else.
 
 ## Email intake
 
-- Inbound email received via CloudMailin
-- AI extraction turns a free-text email into a claim
+- Inbound email received via CloudMailin or SendGrid Inbound Parse
+- The email body is uploaded to automated.claims as a text document, and **AC**
+  parses the claim out of it — the extraction is not done on our side.
+  (`EmailExtractionService` exists and is registered, but nothing calls it.)
+- Attachments are forwarded to the claim as documents
 - Outbound replies sent via Resend
 - An automatic email listing missing evidence, sent once per claim and de-duplicated
 - **(+)** Mirror that missing-evidence email into the portal
