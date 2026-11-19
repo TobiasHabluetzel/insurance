@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "saltsys": {
+      "source": { "source": "github", "repo": "TobiasHabluetzel/saltsys-claude" }
+    }
+  },
+  "enabledPlugins": {
+    "backend-apis@saltsys": true,
+    "frontend@saltsys": true,
+    "insurance-domain@saltsys": true,
+    "team-workflow@saltsys": true
+  }
+}
